@@ -7,10 +7,11 @@
 <style>
 :root{ --w:1280; --h:720; }
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;background:#05030f;overflow:hidden;font-family:Arial,Helvetica,sans-serif;-webkit-font-smoothing:antialiased}
+html,body{height:100%;background:radial-gradient(120% 120% at 50% 0%,#140c2e 0%,#05030f 60%);overflow:hidden;font-family:Arial,Helvetica,sans-serif;-webkit-font-smoothing:antialiased;
+  -webkit-text-size-adjust:100%;-moz-text-size-adjust:100%;text-size-adjust:100%}
 #deck{position:fixed;inset:0;display:grid;place-items:center}
 .viewport{position:relative;width:100vw;height:100vh;display:grid;place-items:center}
-.frame{position:relative;width:1280px;height:720px;transform-origin:center center;
+.frame{position:absolute;left:50%;top:50%;width:1280px;height:720px;margin:-360px 0 0 -640px;transform-origin:center center;
   box-shadow:0 40px 120px -20px rgba(2,0,30,.8),0 0 0 1px rgba(130,8,213,.18);border-radius:14px;overflow:hidden;background:#F5F8FF}
 .slide{position:absolute;inset:0;opacity:0;visibility:hidden;pointer-events:none}
 .stage{position:absolute;inset:0}
@@ -104,12 +105,33 @@ document.getElementById('next').onclick=next;
 document.getElementById('prev').onclick=prev;
 document.getElementById('full').onclick=()=>{if(!document.fullscreenElement)document.documentElement.requestFullscreen();else document.exitFullscreen();};
 addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key===' '||e.key==='PageDown'){e.preventDefault();next();}else if(e.key==='ArrowLeft'||e.key==='PageUp'){prev();}else if(e.key==='Home')go(0);else if(e.key==='End')go(N-1);});
-// touch
-let tx=0;addEventListener('touchstart',e=>tx=e.touches[0].clientX,{passive:true});
-addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-tx;if(Math.abs(dx)>50){dx<0?next():prev();}});
-// scale frame to viewport
-function fit(){const vw=innerWidth,vh=innerHeight;const s=Math.min(vw/1280,vh/720)*( (vw<700)?0.99:0.94 );frame.style.transform='scale('+s+')';}
-addEventListener('resize',fit);fit();
+// touch (axis-aware so it works rotated or not)
+let tX=0,tY=0;
+addEventListener('touchstart',e=>{tX=e.touches[0].clientX;tY=e.touches[0].clientY;},{passive:true});
+addEventListener('touchend',e=>{
+  const dx=e.changedTouches[0].clientX-tX, dy=e.changedTouches[0].clientY-tY;
+  const adx=Math.abs(dx), ady=Math.abs(dy);
+  if(Math.max(adx,ady)<45) return;
+  if(rotated){ if(ady>=adx){ dy<0?next():prev(); } else { dx<0?next():prev(); } }
+  else { if(adx>=ady){ dx<0?next():prev(); } else { dy<0?next():prev(); } }
+});
+// scale frame to viewport; auto-rotate on portrait phones to fill the screen
+let rotated=false;
+function fit(){
+  const vw=innerWidth, vh=innerHeight;
+  const portrait = vh>vw && vw<760;
+  rotated=portrait;
+  let s,t;
+  if(portrait){
+    s=Math.min(vw/720, vh/1280)*0.99;
+    t='rotate(90deg) scale('+s+')';
+  }else{
+    s=Math.min(vw/1280, vh/720)*(vw<900?0.99:0.94);
+    t='scale('+s+')';
+  }
+  frame.style.transform=t;
+}
+addEventListener('resize',fit);addEventListener('orientationchange',fit);fit();
 const hint=document.getElementById('hint');setTimeout(()=>hint.style.opacity=0,4200);
 render(null);
 </script>
