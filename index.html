@@ -59,11 +59,8 @@ body{font-family:var(--b);color:var(--ink);background:var(--paper);overflow:hidd
    radial-gradient(60% 55% at 72% 14%,rgba(191,190,247,.4),transparent 62%),
    var(--paper)}
 .hero-inner{position:relative;text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px;padding:30px}
-.hero-mark{width:clamp(82px,12vw,124px);filter:drop-shadow(0 14px 30px rgba(12,10,158,.22));animation:rise .9s both}
-.hero-word{width:clamp(258px,52vw,540px);margin-top:14px;animation:rise .9s .1s both;filter:drop-shadow(0 6px 16px rgba(12,10,158,.14))}
-.hero-tag{font-family:var(--h);font-weight:700;font-size:clamp(16px,2.5vw,26px);letter-spacing:.01em;
-  background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;margin-top:14px;animation:rise .9s .2s both}
-.hero-pill{margin-top:24px;font-size:clamp(11px,1.5vw,14px);letter-spacing:.06em;color:var(--navy);font-weight:500;
+.hero-word{width:clamp(280px,62vw,620px);animation:rise .9s both;filter:drop-shadow(0 10px 26px rgba(12,10,158,.16))}
+.hero-pill{margin-top:10px;font-size:clamp(11px,1.5vw,14px);letter-spacing:.06em;color:var(--navy);font-weight:500;
   border:1px solid rgba(12,10,158,.22);background:rgba(255,255,255,.6);padding:10px 20px;border-radius:40px;backdrop-filter:blur(6px);
   box-shadow:0 10px 30px -16px rgba(12,10,158,.4);animation:rise .9s .3s both}
 
@@ -167,9 +164,8 @@ body{font-family:var(--b);color:var(--ink);background:var(--paper);overflow:hidd
 <section class="slide hero active" data-i="1">
   <div class="hero-bg"></div>
   <div class="hero-inner">
-    <img class="hero-mark" src="images/image3.png" alt="">
-    <img class="hero-word" src="images/image4.png" alt="DEOSOLUCIONES">
-    <div class="hero-tag">Transformamos retos en soluciones</div>
+    <img class="hero-word" src="images/image4.png" alt="DEOSOLUCIONES — Transformamos retos en soluciones">
+    <span class="accent-line center"></span>
     <div class="hero-pill">Soluciones tecnológicas 3 en 1 · Seguridad · Soporte · Comercio</div>
   </div>
 </section>
@@ -353,6 +349,9 @@ function show(){
   counter.textContent=pad(cur)+' / '+pad(N-1);
   bar.style.width=((cur+1)/N*100)+'%';
   const a=slides[cur]; if(a) a.scrollTop=0;
+  // hide the fixed brand mark on slides that already show the full logo (first & last)
+  const bm=document.querySelector('.brandmark');
+  if(bm) bm.style.display=(cur===0||cur===N-1)?'none':'';
 }
 function go(i){i=Math.max(0,Math.min(N-1,i));if(busy||i===cur)return;busy=true;cur=i;show();setTimeout(()=>busy=false,420);}
 const next=()=>go(cur+1), prev=()=>go(cur-1);
